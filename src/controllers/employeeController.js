@@ -59,11 +59,13 @@ async function findEmployee(req, res) {
   try {
     console.log("body: ", req.body);
     let empEmail = req.body?.email;
-    let employee = await Employee.findOne({ email: empEmail }).populate(
-      "roleId"
-    );
+    let employee = await Employee.findOne({ email: empEmail })
+      .populate("roleId")
+      .populate("departmentId");
     if (employee && employee.roleId[0].roleId == 1) {
-      let data = await Employee.find();
+      let data = await Employee.find()
+        .populate("roleId")
+        .populate("departmentId");
       res.json(data);
     } else if (employee.roleId[0].roleId == 2) {
       res.json(employee);

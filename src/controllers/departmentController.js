@@ -71,10 +71,27 @@ async function salesAnalyze(req, res) {
     let andOperation = await Sales.find({
       $and: [{ productQuantity: { $gt: 30 } }, { productPrice: { $gte: 30 } }],
     });
+    let maxPrice = await Sales.findOne().sort({ productPrice: -1 });
+    let minPrice = await Sales.findOne().sort({ productPrice: +1 });
+
+    let count = await Sales.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: "$productQuantity",
+          },
+        },
+      },
+    ]);
+
     let message = {
-      "Greter than": gteOperation,
+      "GTE Operation": gteOperation,
       "Or Operation": orOperation,
       "And Operation": andOperation,
+      "Maximum Price": maxPrice,
+      "Minimum Price": minPrice,
+      "Product Count": count,
     };
     res.status(200).json({ msg: message });
   } catch (error) {
