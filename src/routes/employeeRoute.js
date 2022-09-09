@@ -13,9 +13,9 @@ const {
 
 router.get("/employee/viewEmployee", tokenValidation, viewEmployee);
 router.get("/employee/findEmployee", tokenValidation, findEmployee);
-router.get("/employee/deleteEmployee", deleteEmployee);
-router.post("/employee/addEmployee", addEmployee);
-router.put("/employee/updateEmployee", updateEmployee);
+router.get("/employee/deleteEmployee", tokenValidation, deleteEmployee);
+router.post("/employee/addEmployee", tokenValidation, addEmployee);
+router.put("/employee/updateEmployee", tokenValidation, updateEmployee);
 router.get("/employee/employeeLogin", employeeLogin);
 
 module.exports = router;

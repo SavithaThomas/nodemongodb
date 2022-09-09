@@ -60,10 +60,24 @@ async function updateDepartment(req, res) {
   }
 }
 
-async function salesAnalyze(req, res) {
+async function addSales(req, res) {
   try {
     let data = req.body;
-    var query = await Sales.find();
+    var sales = new Sales();
+    sales.productName = data.productName;
+    sales.productQuantity = data.productQuantity;
+    sales.productPrice = data.productPrice;
+    await sales.save();
+    res
+      .status(200)
+      .json({ status: true, msg: "Sales details added successfully" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: `${error}` });
+  }
+}
+
+async function salesAnalyze(req, res) {
+  try {
     let gteOperation = await Sales.find({ productquantity: { $gte: 30 } });
     let orOperation = await Sales.find({
       $or: [{ productQuantity: { $gt: 30 } }, { productPrice: { $gte: 30 } }],
@@ -71,10 +85,16 @@ async function salesAnalyze(req, res) {
     let andOperation = await Sales.find({
       $and: [{ productQuantity: { $gt: 30 } }, { productPrice: { $gte: 30 } }],
     });
+
     let maxPrice = await Sales.findOne().sort({ productPrice: -1 });
     let minPrice = await Sales.findOne().sort({ productPrice: +1 });
 
-    let count = await Sales.aggregate([
+    let likeOperation = await Sales.findOne({
+      productName: /Pen/,
+    });
+
+    let totalCount = await Sales.count();
+    let productCount = await Sales.aggregate([
       {
         $group: {
           _id: null,
@@ -91,7 +111,9 @@ async function salesAnalyze(req, res) {
       "And Operation": andOperation,
       "Maximum Price": maxPrice,
       "Minimum Price": minPrice,
-      "Product Count": count,
+      "Total count": totalCount,
+      "Product Count": productCount,
+      "Like Operation": likeOperation,
     };
     res.status(200).json({ msg: message });
   } catch (error) {
@@ -103,5 +125,6 @@ module.exports = {
   viewDepartment,
   addDepartment,
   updateDepartment,
+  addSales,
   salesAnalyze,
 };
